@@ -5,9 +5,9 @@
 
 #include "extgl.h"
 
-static void* gles1;
+/static void* gles1;
 static void* glshim;
-
+/*
 #define MAP(func_name, func) \
     if (strcmp(name, func_name) == 0) name = #func;
 
@@ -20,19 +20,33 @@ static void* glshim;
         printf("LWJGLWrapper: glX stub: %s\n", #func_name); \
         return (void *)glXStub;               \
     }
+*/
 
+/*
+ * u said we need arb, suffixes, dat gles crap?
+ * NO BITCH!
+ * im using Regal, and all dat func crap is shim'ed
+ * in da Regal lib lul
+ */
 void glXStub(void *x, ...) {
     return;
 }
 
 bool extgl_Open(JNIEnv *env) {
-	gles1 = dlopen("libGLESv1_CM.so", RTLD_LAZY);
-	glshim = dlopen("libglshim.so", RTLD_LAZY);
+	//gles1 = dlopen("libGLESv1_CM.so", RTLD_LAZY); // don't need dat crap, because Regal replaces *just* all of funs
+	glshim = dlopen("libRegal.so", RTLD_LAZY); 
 	return gles1 != NULL && glshim != NULL;
 }
 
 void *extgl_GetProcAddress(const char *name) {
-	if (strstr(name, "glBlendFuncSeparate")) return NULL;
+	void *t = dlsym(glshim, name);
+	if (t == NULL) {
+		//dat shitty shim doesn't have a func?
+		//eat that, stupid minceraft.
+		return (void *)glXstub;
+	}
+	//don't need dat old stubbing crap
+	//if (strstr(name, "glBlendFuncSeparate")) return NULL;
     // glX calls
 
     // GL_ARB_vertex_buffer_object
@@ -50,7 +64,7 @@ void *extgl_GetProcAddress(const char *name) {
     MAP_EGL(glUnmapBufferARB, glMapBufferOES);
     STUB(glGetBufferParameterivARB);
     STUB(glGetBufferSubDataARB);*/
-
+    /*
     // GL_EXT_vertex_array
     EXT(glArrayElement);
     EXT(glDrawArrays);
@@ -166,11 +180,11 @@ void *extgl_GetProcAddress(const char *name) {
 		printf("LWJGLWrapper: Found symbol %s\n", name);
 #endif
 	}
-
+        */
 	return t;
 }
 
 void extgl_Close(void) {
-	dlclose(gles1);
+	//dlclose(gles1); //don't need that shit lol
 	dlclose(glshim);
 }
