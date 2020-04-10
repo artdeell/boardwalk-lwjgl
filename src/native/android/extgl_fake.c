@@ -5,7 +5,7 @@
 
 #include "extgl.h"
 
-/static void* gles1;
+//static void* gles1;
 static void* glshim;
 /*
 #define MAP(func_name, func) \
